@@ -1,0 +1,221 @@
+### Review API Tests with Image Upload
+
+@baseUrl = http://localhost:8000/api
+@authToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTJkODYxMTdjOTNmYzI2OWRmNDEyMiIsInJvbGUiOiJ2ZW5kb3IiLCJpYXQiOjE3NTYwMTQ5NDAsImV4cCI6MTc1NjEwMTM0MH0.N_mKEo2K7i9h2Ru144X2Ef1C_GGBr_z20vKjfd_zsgI
+
+@productId = 68a2d86117c93fc269df4122
+@reviewId = 
+@existingImages = ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+
+### 1. Create Review with Images
+POST {{baseUrl}}/review/addReview
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data
+
+# Form data fields:
+# - productId: {{productId}}
+# - rating: 5
+# - comment: This is an excellent product! Very satisfied with the quality.
+# - images: [Select multiple image files - max 5 files, 5MB each]
+
+###
+
+### 2. Create Review without Images (Text only)
+POST {{baseUrl}}/review/addReview
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data
+
+# Form data fields:
+# - productId: {{productId}}
+# - rating: 4
+# - comment: Good product, would recommend to others.
+
+###
+
+### 3. Create Review with JSON (for testing without actual file upload)
+POST {{baseUrl}}/review/addReview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}",
+  "rating": 5,
+  "comment": "Amazing product! Love the quality and design. Fast delivery too!"
+}
+
+###
+
+### 4. Get All Reviews for a Product (Admin Panel)
+GET {{baseUrl}}/review/getAllReviews/{{productId}}?page=1&limit=10&sort=-createdAt
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 5. Get Product Page Reviews (User's review + other reviews)
+GET {{baseUrl}}/review/productpage/{{productId}}?page=1&limit=5&sort=-createdAt
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 6. Update Review with New Images
+PUT {{baseUrl}}/review/updateReview/{{reviewId}}
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data
+
+# Form data fields:
+# - rating: 4
+# - comment: Updated review text with more details about the product.
+# - existingImages: ["https://example.com/image1.jpg"] (JSON string of URLs to keep)
+# - images: [Select new image files to add - max 5 files, 5MB each]
+
+###
+
+### 7. Update Review Text Only (No Images)
+PUT {{baseUrl}}/review/updateReview/{{reviewId}}
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data
+
+# Form data fields:
+# - rating: 3
+# - comment: Updated my rating after using the product for a month.
+# - existingImages: [] (empty array to remove all existing images)
+
+###
+
+### 8. Update Review with JSON (for testing without file upload)
+PUT {{baseUrl}}/review/updateReview/{{reviewId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "Updated review comment - product is good but could be better.",
+  "existingImages": "[]"
+}
+
+###
+
+### 9. Toggle Like on Review
+GET {{baseUrl}}/review/Like/{{reviewId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 10. Delete Review (and associated images)
+DELETE {{baseUrl}}/review/deleteReview/{{reviewId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### Error Cases
+
+### 11. Create Review - Invalid Product ID
+POST {{baseUrl}}/review/addReview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "productId": "invalid-id",
+  "rating": 5,
+  "comment": "This should fail due to invalid product ID"
+}
+
+###
+
+### 12. Create Review - Missing Rating
+POST {{baseUrl}}/review/addReview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}",
+  "comment": "This should fail due to missing rating"
+}
+
+###
+
+### 13. Create Review - Invalid Rating (out of range)
+POST {{baseUrl}}/review/addReview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}",
+  "rating": 6,
+  "comment": "This should fail due to invalid rating (> 5)"
+}
+
+###
+
+### 14. Update Review - Non-existent Review ID
+PUT {{baseUrl}}/review/updateReview/68a2d86117c93fc269df9999
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "rating": 4,
+  "comment": "This should fail - review not found"
+}
+
+###
+
+### 15. Delete Review - Non-existent Review ID
+DELETE {{baseUrl}}/review/deleteReview/68a2d86117c93fc269df9999
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 16. Access without Authentication
+GET {{baseUrl}}/review/getAllReviews/{{productId}}
+Content-Type: application/json
+
+###
+
+### Pagination Tests
+
+### 17. Get Reviews with Custom Pagination
+GET {{baseUrl}}/review/getAllReviews/{{productId}}?page=2&limit=5&sort=rating
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 18. Get Reviews Sorted by Likes
+GET {{baseUrl}}/review/productpage/{{productId}}?page=1&limit=10&sort=-likes
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+### 19. Get Reviews Sorted by Date (Oldest First)
+GET {{baseUrl}}/review/getAllReviews/{{productId}}?sort=createdAt
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+###
+
+# Instructions for Testing with Images:
+# 
+# For requests with file uploads (multipart/form-data):
+# 1. In VS Code REST Client, click "Send Request"
+# 2. In the form that appears, fill in the text fields
+# 3. For image fields, click "Choose File" and select image files
+# 4. Supported formats: JPEG, PNG, WebP
+# 5. Max file size: 5MB per image
+# 6. Max files: 5 images per review
+#
+# For existingImages field in updates:
+# - Send as JSON string: ["url1", "url2"] 
+# - To keep specific images from previous upload
+# - Send empty array [] to remove all existing images
+#
+# Variables to set:
+# @baseUrl = http://localhost:8000/api (your server URL)
+# @authToken = your_jwt_token_here
+# @productId = valid_product_id_here  
+# @reviewId = valid_review_id_here (get from create response)

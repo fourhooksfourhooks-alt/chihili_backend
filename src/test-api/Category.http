@@ -1,0 +1,64 @@
+@baseUrl = http://localhost:8000/api
+@token = REPLACE_WITH_JWT
+@categoryId = REPLACE_WITH_CATEGORY_ID
+@categorySlug = sample-category-slug
+@parentCategoryId = REPLACE_WITH_PARENT_ID
+
+### List categories (public) with filters and pagination
+GET {{baseUrl}}/categories?page=1&limit=10&sort=-createdAt&fields=name,slug,parent,isActive&search=women&isActive=true
+Content-Type: application/json
+
+### Get category by ID (public)
+GET {{baseUrl}}/categories/{{categoryId}}
+Content-Type: application/json
+
+### Get category by slug (public)
+GET {{baseUrl}}/categories/slug/{{categorySlug}}
+Content-Type: application/json
+
+### Create a category (protected; admin only)
+POST {{baseUrl}}/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Women",
+  "parent": null,
+  "isActive": true
+}
+
+### Create a sub-category (protected; admin only)
+POST {{baseUrl}}/categories
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Sarees",
+  "parent": "{{parentCategoryId}}",
+  "isActive": true
+}
+
+### Update a category (protected; admin only)
+PUT {{baseUrl}}/categories/{{categoryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Women Fashion",
+  "isActive": true
+}
+
+### Toggle category active flag (protected; admin only)
+PATCH {{baseUrl}}/categories/{{categoryId}}/active
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### Delete a category (protected; admin only; fails if has children or products reference it)
+DELETE {{baseUrl}}/categories/{{categoryId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+

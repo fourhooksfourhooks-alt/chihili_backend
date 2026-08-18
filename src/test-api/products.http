@@ -1,0 +1,202 @@
+@baseUrl = http://localhost:8000/api
+@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTJkODYxMTdjOTNmYzI2OWRmNDEyMiIsInJvbGUiOiJ2ZW5kb3IiLCJpYXQiOjE3NTYwMTQ5NDAsImV4cCI6MTc1NjEwMTM0MH0.N_mKEo2K7i9h2Ru144X2Ef1C_GGBr_z20vKjfd_zsgI
+@vendorId = 68a2f19f17ddbe1378d25a75
+@productId = 
+@productSlug = sample-product-slug
+@sku = SAMPLE-SKU-001
+
+### List products (public) with filters and pagination
+GET {{baseUrl}}/products?page=1&limit=10&sort=-createdAt&fields=name,slug,images,status&search=saree&minPrice=499&maxPrice=2999&size=M&color=red&isFeatured=true
+Content-Type: application/json
+
+### Get product by ID (public)
+GET {{baseUrl}}/products/{{productId}}
+Content-Type: application/json
+
+### Get product by slug (public)
+GET {{baseUrl}}/products/slug/{{productSlug}}
+Content-Type: application/json
+
+### Get products for a vendor (public; defaults to status=active)
+GET {{baseUrl}}/products/vendor/{{vendorId}}?page=1&limit=10
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Create a product (protected; vendor owner or admin)
+POST {{baseUrl}}/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vendorId": "{{vendorId}}",
+  "name": "Embroidered Silk Saree",
+  "shortDescription": "Elegant silk saree for festive occasions",
+  "description": "A premium silk saree with intricate embroidery.",
+  "categories": [
+    "64d2fd1f8d7f4b00126eabcd"
+  ],
+  "tags": ["saree", "silk", "festive"],
+  "discountType": "percentage",
+  "discountValue": 20,
+  "buyXGetY": {
+    "x": 2,
+    "y": 1
+  },
+  "images": [
+    "https://cdn.example.com/products/silk-saree-1.jpg",
+    "https://cdn.example.com/products/silk-saree-2.jpg"
+  ],
+  "variants": [
+    {
+      "title": "Red / M",
+      "attributes": { "size": "M", "color": "red" },
+      "price": 1999,
+      "mrp": 2499,
+      "images": ["https://cdn.example.com/products/silk-saree-red.jpg"],
+      "stock": 15
+    },
+    {
+      "title": "Yellow / L",
+      "attributes": { "size": "L", "color": "yellow" },
+      "price": 2099,
+      "mrp": 2599,
+      "images": ["https://cdn.example.com/products/silk-saree-yellow.jpg"],
+      "stock": 8
+    }
+  ]
+}
+
+### Create a product with images and variant images (multipart)
+POST {{baseUrl}}/products
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+# form-data fields:
+# vendorId: {{vendorId}}
+# name: Embroidered Silk Saree
+# shortDescription: Elegant silk saree for festive occasions
+# description: A premium silk saree with intricate embroidery.
+# categories: ["64d2fd1f8d7f4b00126eabcd"]
+# tags: ["saree","silk","festive"]
+# discountType: percentage
+# discountValue: 20
+# buyXGetY: {"x":2,"y":1}
+# variants: [{"title":"Red / M","attributes":{"size":"M","color":"red"},"price":1999,"mrp":2499,"stock":15},{"title":"Yellow / L","attributes":{"size":"L","color":"yellow"},"price":2099,"mrp":2599,"stock":8}]
+# images: <attach multiple files>
+# variants[0][images]: <attach multiple files for variant 0>
+# variants[1][images]: <attach multiple files for variant 1>
+
+
+### Update a product (protected; vendor owner or admin)
+PUT {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Embroidered Silk Saree - Premium",
+  "shortDescription": "Updated subtitle",
+  "images": ["https://cdn.example.com/products/silk-saree-hero.jpg"],
+  "tags": ["saree", "silk", "wedding"]
+}
+
+### Update a product with images and variant images (multipart)
+PUT {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+# form-data fields (examples):
+# name: Embroidered Silk Saree - Premium
+# tags: ["saree","silk","wedding"]
+# images: <attach additional product images>
+# variants[0][images]: <attach files to replace/append variant 0 images>
+
+### Delete a product (soft delete; protected; vendor owner or admin)
+DELETE {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Update product status (protected; admin only)
+PATCH {{baseUrl}}/products/{{productId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "active"
+}
+
+### Toggle product featured flag (protected; admin only)
+PATCH {{baseUrl}}/products/{{productId}}/feature
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isFeatured": true
+}
+
+### Add variants to a product (protected; vendor owner or admin)
+POST {{baseUrl}}/products/{{productId}}/variants
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "variants": [
+    {
+      "title": "Black / XL",
+      "attributes": { "size": "XL", "color": "black" },
+      "price": 2199,
+      "mrp": 2699,
+      "images": ["https://cdn.example.com/products/silk-saree-black.jpg"],
+      "stock": 5
+    }
+  ]
+}
+
+### Add variants with images (multipart)
+POST {{baseUrl}}/products/{{productId}}/variants
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+# form-data fields:
+# variants: [{"title":"Black / XL","attributes":{"size":"XL","color":"black"},"price":2199,"mrp":2699,"stock":5}]
+# variantImages: <attach multiple files; they will be added to the first variant>
+
+### Update a specific variant by SKU (protected; vendor owner or admin)
+PUT {{baseUrl}}/products/{{productId}}/variants/{{sku}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Black / XL - Limited",
+  "price": 2299,
+  "stock": 7,
+  "images": ["https://cdn.example.com/products/silk-saree-black-new.jpg"]
+}
+
+### Update a specific variant by SKU with images (multipart)
+PUT {{baseUrl}}/products/{{productId}}/variants/{{sku}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+# form-data fields (examples):
+# title: Black / XL - Limited
+# price: 2299
+# stock: 7
+# variantImages: <attach multiple files to set/append images>
+
+### Remove a specific variant by SKU (protected; vendor owner or admin)
+DELETE {{baseUrl}}/products/{{productId}}/variants/{{sku}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Bulk update stock for multiple SKUs (protected; vendor owner or admin)
+PATCH {{baseUrl}}/products/{{productId}}/stock
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "updates": [
+    { "sku": "SAR-SILK-RED-M", "stock": 20 },
+    { "sku": "SAR-SILK-YLW-L", "stock": 12 }
+  ]
+}
+

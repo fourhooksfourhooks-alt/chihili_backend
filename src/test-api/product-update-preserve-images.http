@@ -1,0 +1,82 @@
+@baseUrl = http://localhost:8000/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4YTJkODYxMTdjOTNmYzI2OWRmNDEyMiIsInJvbGUiOiJ2ZW5kb3IiLCJpYXQiOjE3NTYwMTQ5NDAsImV4cCI6MTc1NjEwMTM0MH0.N_mKEo2K7i9h2Ru144X2Ef1C_GGBr_z20vKjfd_zsgI
+@vendorId = 68a2f19f17ddbe1378d25a75
+@productId = YOUR_PRODUCT_ID_HERE
+
+### Test Case: Verify updating product without sending images preserves existing variant images
+
+# Step 1: Create a product with variants that have images
+POST {{baseUrl}}/products
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vendorId": "{{vendorId}}",
+  "name": "Test Product - Preserve Images",
+  "shortDescription": "Test product for image preservation",
+  "description": "Testing that variant images are preserved when updating product without images",
+  "categories": [],
+  "tags": ["test"],
+  "variants": [
+    {
+      "title": "Red / M",
+      "attributes": { "size": "M", "color": "red" },
+      "price": 1999,
+      "mrp": 2499,
+      "stock": 15
+    }
+  ]
+}
+
+### Step 2: Add images to the variant (use the product ID from step 1)
+POST {{baseUrl}}/products/{{productId}}/variants/VARIANT_SKU_HERE/images
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data
+
+# Upload some test images here
+
+### Step 3: Get product to verify images exist
+GET {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Step 4: Update product WITHOUT sending any image-related fields
+PUT {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Test Product - Preserve Images UPDATED",
+  "shortDescription": "Updated description",
+  "tags": ["test", "updated"]
+}
+
+### Step 5: Get product again to verify variant images are still preserved
+GET {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Step 6: Test with variants in request body (but no images) - should still preserve existing images
+PUT {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Test Product - Preserve Images UPDATED AGAIN",
+  "shortDescription": "Updated again",
+  "tags": ["test", "updated", "again"],
+  "variants": [
+    {
+      "title": "Red / M",
+      "attributes": { "size": "M", "color": "red" },
+      "price": 2199,
+      "mrp": 2699,
+      "stock": 20
+    }
+  ]
+}
+
+### Step 7: Final check - variant images should STILL be preserved
+GET {{baseUrl}}/products/{{productId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json

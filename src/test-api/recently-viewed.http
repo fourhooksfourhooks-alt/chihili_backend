@@ -1,0 +1,29 @@
+### Recently Viewed Products API Tests
+
+# Add product to recently viewed
+POST {{baseUrl}}/api/users/recently-viewed
+Authorization: Bearer {{userToken}}
+Content-Type: application/json
+
+{
+  "productId": "{{productId}}"
+}
+
+###
+
+# Get recently viewed products (default limit: 10)
+GET {{baseUrl}}/api/users/recently-viewed
+Authorization: Bearer {{userToken}}
+
+###
+
+# Get recently viewed products with custom limit
+GET {{baseUrl}}/api/users/recently-viewed?limit=5
+Authorization: Bearer {{userToken}}
+
+###
+
+# Test variables (replace with actual values)
+# @baseUrl = http://localhost:3000
+# @userToken = your_jwt_token_here
+# @productId = actual_product_id_here
