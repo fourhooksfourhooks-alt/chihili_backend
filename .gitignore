@@ -124,8 +124,6 @@ dist
 .pnp.*
 
 # # End of https://mrkandreev.name/snippets/gitignore-generator/git rm --cached --ignore-unmatch env.yaml
-git rm --cached --ignore-unmatch public/chihili-firebase-adminsdk-fbsvc-74c9913603.json
-public/chihili-firebase-adminsdk-fbsvc-74c9913603.json
 .env
 .env.*
 *firebase-adminsdk*.json
